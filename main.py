@@ -3,6 +3,7 @@ import pickle
 import os.path
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaFileUpload
+from googleapiclient.errors import HttpError
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from oauth2client.service_account import ServiceAccountCredentials
@@ -114,13 +115,20 @@ def download_file(service, item, save_path = "."):
     fh = io.BytesIO()
     downloader = MediaIoBaseDownload(fh, request)
     done = False
-    while done is False:
-        status, done = downloader.next_chunk()
-        echo("Download and create file {} [{}%].".format(save_path, int(status.progress() * 100)))
 
-    with io.open(save_path, 'wb') as f:
-        fh.seek(0)
-        f.write(fh.read())
+    try:
+        while done is False:
+            status, done = downloader.next_chunk()
+            echo("Download and create file {} [{}%].".format(save_path, int(status.progress() * 100)))
+
+        with io.open(save_path, 'wb') as f:
+            fh.seek(0)
+            f.write(fh.read())
+    except HttpError as error:
+        if error.resp.status == 416:
+            # Create empty file
+            open(save_path, 'a').close()
+            echo("Create empty file {}".format(save_path))
 
 @gdrive.command()
 @click.argument('source_path')
