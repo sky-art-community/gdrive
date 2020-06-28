@@ -42,12 +42,12 @@ def setup(service_account_url = "service-account.json"):
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            echo("Authenticating... ", end='')
+            print("Authenticating... ", end='')
             creds = ServiceAccountCredentials.from_json_keyfile_name(
                 service_account_url,
                 scopes=SCOPES
             )
-            echo("Done")
+            print("Done")
         # Save the credentials for the next run
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
