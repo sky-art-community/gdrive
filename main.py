@@ -57,8 +57,7 @@ def setup(service_account_url = "service-account.json"):
     return service
 
 def echo(message):
-    if not should_silent:
-        click.echo(message)
+    click.echo(message)
 
 @click.group()
 @click.option('-a', '--auth', default="service-account.json", help="Use service account for authentication")
@@ -69,7 +68,6 @@ def gdrive(ctx, auth, silent):
 
     ctx.ensure_object(dict)
     ctx.obj['service'] = setup(auth)
-    should_silent = silent
 
 @gdrive.command()
 @click.argument('unit_id')
